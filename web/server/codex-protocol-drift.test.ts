@@ -24,13 +24,13 @@ describe("Codex adapter method drift vs upstream protocol snapshot", () => {
     const handledNotifications = extractCaseMethods(
       adapter,
       "private handleNotification(method: string, params: Record<string, unknown>): void {",
-      "private handleRequest(method: string, id: number, params: Record<string, unknown>): void {",
+      "private handleRequest(method: string, id: JsonRpcId, params: Record<string, unknown>): void {",
     );
 
     const handledRequests = extractCaseMethods(
       adapter,
-      "private handleRequest(method: string, id: number, params: Record<string, unknown>): void {",
-      "private handleCommandApproval(jsonRpcId: number, params: Record<string, unknown>): void {",
+      "private handleRequest(method: string, id: JsonRpcId, params: Record<string, unknown>): void {",
+      "private handleCommandApproval(jsonRpcId: JsonRpcId, params: Record<string, unknown>): void {",
     );
 
     const calledClientMethods = new Set(
@@ -44,6 +44,8 @@ describe("Codex adapter method drift vs upstream protocol snapshot", () => {
 
     const legacyNotifications = new Set([
       "item/updated",
+      // Legacy/alternate delta envelope still observed in some runs.
+      "item/delta",
       // Legacy alias still observed in recordings; upstream snapshot currently
       // models the same payload under item/reasoning/textDelta.
       "item/reasoning/delta",
@@ -80,6 +82,8 @@ describe("Codex adapter method drift vs upstream protocol snapshot", () => {
       "mcpServer/startupStatus/updated",
       // Context compaction event (v2 form of codex/event/context_compacted).
       "thread/compacted",
+      // Legacy realtime transcript notification shape still seen in some runs.
+      "thread/realtime/transcriptUpdated",
       // Informational warnings from Codex runtime.
       "configWarning",
       "deprecationNotice",
